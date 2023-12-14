@@ -29,7 +29,12 @@ const Topbar = () => {
                 </Button>
 
                 <Link to={`/profile/${user.id}`} className='flex-center gap-3'>
-                    <img src={user.imageUrl || '/public/assets/images/profile.png'} alt='profile' className='h-8 w-8 rounded-full' />
+                    <img src={user.imageUrl || '/public/assets/icons/profile-placeholder.svg'} alt='profile' className='h-14 w-14 rounded-full' />
+                    <div className='flex flex-col'>
+                        <p className='body-bold'>
+                            {user.email}
+                        </p>
+                    </div>
                 </Link>
             </div>
         </section>
