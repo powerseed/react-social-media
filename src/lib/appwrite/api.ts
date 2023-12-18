@@ -150,7 +150,7 @@ export async function createPost(post: INewPost) {
         if (!uploadedFile) throw Error;
 
         const fileUrl = getFilePreview(uploadedFile.$id);
-        
+
         if (!fileUrl) {
             await deleteFile(uploadedFile.$id);
             throw Error;
@@ -177,5 +177,90 @@ export async function createPost(post: INewPost) {
         return newPost;
     } catch (error) {
         console.log(error);
+    }
+}
+
+export async function getRecentPosts() {
+    try {
+        const recentPosts = await databases.listDocuments(
+            appwriteConfig.databaseId,
+            appwriteConfig.postsCollectionId,
+            [Query.orderDesc('$createdAt'), Query.limit(20)]
+        );
+
+        if (recentPosts === null) {
+            throw Error;
+        }
+
+        return recentPosts;
+    }
+    catch (e) {
+        console.log(e);
+    }
+}
+
+export async function likePost(postId: string, likesArray: string[]) {
+    try {
+        console.log("likesArray")
+        console.log(likesArray)
+        const updatedPost = await databases.updateDocument(
+            appwriteConfig.databaseId,
+            appwriteConfig.postsCollectionId,
+            postId,
+            {
+                likes: likesArray
+            }
+        );
+
+        if (updatedPost === null) {
+            throw Error;
+        }
+
+        return updatedPost;
+    }
+    catch (e) {
+        console.log(e);
+    }
+}
+
+export async function savePost(postId: string, userId: string) {
+    try {
+        const newSave = await databases.createDocument(
+            appwriteConfig.databaseId,
+            appwriteConfig.savesCollectionId,
+            ID.unique(),
+            {
+                user: userId,
+                post: postId
+            }
+        );
+
+        if (newSave === null) {
+            throw Error;
+        }
+
+        return newSave;
+    }
+    catch (e) {
+        console.log(e);
+    }
+}
+
+export async function deleteSave(savedRecordId: string) {
+    try {
+        const statusCode = await databases.deleteDocument(
+            appwriteConfig.databaseId,
+            appwriteConfig.savesCollectionId,
+            savedRecordId
+        );
+
+        if (statusCode === null) {
+            throw Error;
+        }
+
+        return { status: 'ok' };
+    }
+    catch (e) {
+        console.log(e);
     }
 }

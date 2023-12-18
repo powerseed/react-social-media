@@ -30,8 +30,10 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         if (localStorage.getItem('cookieFallback') === '[]' || localStorage.getItem('cookieFallback') === null) {
             navigate('/sign-in');
         }
+        
+        checkIsUserAuthenticated();
     }, [])
-    
+
     const checkIsUserAuthenticated = async () => {
         try {
             const currentUser = await getCurrentUser();
@@ -50,7 +52,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             return false;
         }
         catch (error) {
-            console.log();
+            console.log(error);
             return false;
         }
         finally {
