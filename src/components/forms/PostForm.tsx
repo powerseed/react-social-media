@@ -19,27 +19,47 @@ import { useContext } from "react"
 import { AuthContext } from "@/context/AuthContext"
 import { toast } from "../ui/use-toast"
 import { useNavigate } from "react-router-dom"
-import { useCreatePost } from "@/lib/react-query/queriesAndMutations"
+import { useCreatePost, useUpdatePost } from "@/lib/react-query/queriesAndMutations"
 
 type PostFormProps = {
-    post?: Models.Document
+    post?: Models.Document,
+    action: 'create' | 'update'
 }
 
-const PostForm = ({ post }: PostFormProps) => {
+const PostForm = ({ post, action }: PostFormProps) => {
     const { user } = useContext(AuthContext);
     const navigate = useNavigate();
     const { mutateAsync: createPost } = useCreatePost();
+    const { mutateAsync: updatePost } = useUpdatePost();
 
     const form = useForm<z.infer<typeof PostValidation>>({
         resolver: zodResolver(PostValidation),
         defaultValues: {
             caption: post ? post.caption : "",
             file: post ? post.file : null,
-            tags: post ? post.tags : []
+            tags: post ? post.tags.toString() : ""
         },
     })
 
     async function onSubmit(values: z.infer<typeof PostValidation>) {
+        if (post && action === 'update') {
+            const updatedPost = await updatePost({
+                ...values,
+                postId: post.$id,
+                imageId: post.imageId,
+                imageUrl: post.imageUrl,
+                tags: values.tags?.replace(/ /g, "").split(",") || []
+            });
+
+            if (!updatedPost) {
+                return toast({
+                    title: 'Please try again.'
+                })
+            }
+
+            return navigate(`/posts/${post.$id}`);
+        }
+
         const newPost = await createPost({
             ...values,
             tags: values.tags?.replace(/ /g, "").split(",") || [],
@@ -51,9 +71,8 @@ const PostForm = ({ post }: PostFormProps) => {
                 title: 'Please try again.'
             })
         }
-        else {
-            navigate('/');
-        }
+
+        return navigate('/');
     }
 
     return (
@@ -99,9 +118,11 @@ const PostForm = ({ post }: PostFormProps) => {
                     )}
                 />
 
-                <Button type="submit" className='shad-button_primary w-20'>
-                    Submit
-                </Button>
+                <div className="w-full flex justify-end">
+                    <Button type="submit" className='shad-button_primary w-20'>
+                        {action === 'create' ? 'Submit' : 'Update'}
+                    </Button>
+                </div>
             </form>
         </Form>
     )

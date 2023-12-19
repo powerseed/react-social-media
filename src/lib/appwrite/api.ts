@@ -1,4 +1,4 @@
-import { INewPost, INewUser } from "@/types";
+import { INewPost, INewUser, IUpdatePost } from "@/types";
 import { account, appwriteConfig, avatars, databases, storage } from "./config";
 import { ID, Query } from 'appwrite';
 
@@ -180,6 +180,64 @@ export async function createPost(post: INewPost) {
     }
 }
 
+export async function updatePost(post: IUpdatePost) {
+    try {
+        let imageId = post.imageId;
+        let imageUrl = post.imageUrl;
+
+        if (post.file) {
+            const newFile = await uploadFile(post.file);
+            if (!newFile) throw Error;
+
+            imageId = newFile.$id;
+
+            const newImageUrl = getFilePreview(newFile.$id);
+
+            if (!newImageUrl) {
+                await deleteFile(newFile.$id);
+                throw Error;
+            }
+
+            imageUrl = newImageUrl;
+        }
+
+        const updatedPost = await databases.updateDocument(
+            appwriteConfig.databaseId,
+            appwriteConfig.postsCollectionId,
+            post.postId,
+            {
+                caption: post.caption,
+                imageUrl: imageUrl,
+                imageId: imageId,
+                tags: post.tags,
+            }
+        );
+
+        return updatedPost;
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+export async function deletePost(postId: string, imageId: string) {
+    if (!postId || !imageId) {
+        throw Error;
+    }
+
+    try {
+        await databases.deleteDocument(
+            appwriteConfig.databaseId,
+            appwriteConfig.postsCollectionId,
+            postId
+        );
+
+        return { status: 'ok' }
+    }
+    catch (e) {
+        console.log(e);
+    }
+}
+
 export async function getRecentPosts() {
     try {
         const recentPosts = await databases.listDocuments(
@@ -259,6 +317,25 @@ export async function deleteSave(savedRecordId: string) {
         }
 
         return { status: 'ok' };
+    }
+    catch (e) {
+        console.log(e);
+    }
+}
+
+export async function getPostById(postId: string) {
+    try {
+        const post = await databases.getDocument(
+            appwriteConfig.databaseId,
+            appwriteConfig.postsCollectionId,
+            postId
+        );
+
+        if (post === null) {
+            throw Error;
+        }
+
+        return post;
     }
     catch (e) {
         console.log(e);
