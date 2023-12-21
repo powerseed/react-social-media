@@ -3,15 +3,15 @@ import { Models } from 'appwrite'
 import Loader from './Loader';
 
 type PostStatsProps = {
-    post: Models.Document,
+    post?: Models.Document,
 }
 
 const PostStats = ({ post }: PostStatsProps) => {
     const { data: currentUser } = useGetCurrentUser();
 
-    let likedUsersList = post.likes.map((user: Models.Document) => user.$id);
+    let likedUsersList = post?.likes.map((user: Models.Document) => user.$id);
     let isLiked = likedUsersList.includes(currentUser?.$id) ? true : false;
-    let saveId = currentUser?.save.find((save: Models.Document) => save.post.$id === post.$id)?.$id;
+    let saveId = currentUser?.save.find((save: Models.Document) => save.post.$id === post?.$id)?.$id;
 
     const { mutate: likePost, isPending: isLikePostPending } = useLikePost();
     const { mutateAsync: savePost, isPending: isSavePostPending } = useSavePost();
@@ -29,7 +29,7 @@ const PostStats = ({ post }: PostStatsProps) => {
             isLiked = true;
         }
 
-        likePost({ postId: post.$id, likesArray: likedUsersList });
+        likePost({ postId: post?.$id || '', likesArray: likedUsersList });
     }
 
     const handleSavePost = async (event: React.MouseEvent) => {
@@ -40,7 +40,7 @@ const PostStats = ({ post }: PostStatsProps) => {
             saveId = undefined;
         }
         else {
-            const newSave = await savePost({ postId: post.$id, userId: currentUser!.$id });
+            const newSave = await savePost({ postId: post?.$id || '', userId: currentUser!.$id });
             saveId = newSave!.$id;
         }
     }

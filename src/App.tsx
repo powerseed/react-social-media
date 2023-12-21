@@ -6,7 +6,7 @@ import AllUsers from './_root/pages/AllUsers'
 import CreatePost from './_root/pages/CreatePost'
 import Explore from './_root/pages/Explore'
 import Home from './_root/pages/Home'
-import Posts from './_root/pages/Posts'
+import PostDetails from './_root/pages/PostDetails'
 import Profile from './_root/pages/Profile'
 import Saved from './_root/pages/Saved'
 import UpdatePost from './_root/pages/UpdatePost'
@@ -31,7 +31,7 @@ function App() {
           <Route path='/all-users' element={<AllUsers />} />
           <Route path='/create-post' element={<CreatePost />} />
           <Route path='/update-post/:id' element={<UpdatePost />} />
-          <Route path='/posts/:id' element={<Posts />} />
+          <Route path='/posts/:id' element={<PostDetails />} />
           <Route path='/profile/:id/*' element={<Profile />} /> 
           <Route path='/update-profile/:id' element={<UpdateProfile />} />
         </Route>
