@@ -12,20 +12,21 @@ const Home = () => {
         <div className='home-posts'>
           <h2 className='h3-bold md:h2-bold w-full'>
             Home Feed
-            {arePostsLoading && !posts ? (
-              <Loader />
-            ) : (
-              <ul className="">
-                {posts?.documents.map((post: Models.Document) => {
-                  return (
-                    <li key={post.$id}>
-                      <PostCard post={post} />
-                    </li>
-                  )
-                })}
-              </ul>
-            )}
           </h2>
+
+          {arePostsLoading && !posts ? (
+            <Loader />
+          ) : (
+            <ul className="">
+              {posts?.documents.map((post: Models.Document) => {
+                return (
+                  <li key={post.$id} className="mb-5">
+                    <PostCard post={post} />
+                  </li>
+                )
+              })}
+            </ul>
+          )}
         </div>
       </div>
     </div>
